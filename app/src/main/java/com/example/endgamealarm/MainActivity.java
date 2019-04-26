@@ -12,21 +12,21 @@ import java.util.TimerTask;
 
 public class MainActivity extends AppCompatActivity {
     TimePicker theAlarm;
-    TextClock currentTime;
+    TextClock timeAsOfNow;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         theAlarm = findViewById(R.id.timePicker);
-        currentTime = findViewById(R.id.textClock);
+        timeAsOfNow = findViewById(R.id.textClock);
         final Ringtone alarmRing = RingtoneManager.getRingtone(getApplicationContext(), RingtoneManager.getDefaultUri(RingtoneManager.TYPE_RINGTONE));
         Timer settingTime = new Timer();
         settingTime.scheduleAtFixedRate(new TimerTask() {
             @Override
             public void run() {
 
-                if (currentTime.getText().toString().equals(TheAlarm())) {
+                if (timeAsOfNow.getText().toString().equals(TheAlarm())) {
                     alarmRing.play();
                 } else {
                     alarmRing.stop();
@@ -48,9 +48,9 @@ public class MainActivity extends AppCompatActivity {
         }
         if(laHoraDeAlarma > 12) {
             laHoraDeAlarma = laHoraDeAlarma - 12;
-            theAlarmAsString = laHoraDeAlarma.toString().concat(":").concat(theAlarmMinutesString).concat(" AM");
-        } else {
             theAlarmAsString = laHoraDeAlarma.toString().concat(":").concat(theAlarmMinutesString).concat(" PM");
+        } else {
+            theAlarmAsString = laHoraDeAlarma.toString().concat(":").concat(theAlarmMinutesString).concat(" AM");
         }
         return theAlarmAsString;
     }
