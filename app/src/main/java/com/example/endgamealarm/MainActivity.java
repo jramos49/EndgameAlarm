@@ -10,14 +10,34 @@ import android.widget.TimePicker;
 import java.util.Timer;
 import java.util.TimerTask;
 
-public class MainActivity extends AppCompatActivity {
+import android.hardware.Sensor;
+import android.hardware.SensorManager;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+import android.widget.TextView;
+
+public class MainActivity extends AppCompatActivity implements SensorEventListener{
     TimePicker theAlarm;
     TextClock timeAsOfNow;
+    private boolean alarmYeet = true;
+    private boolean isRinging;
+    private TextView xText, yText, zText;
+    private Sensor theSensor;
+    private SensorManager management;
+    private int counter = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        management = (SensorManager)getSystemService(SENSOR_SERVICE);
+        theSensor = management.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+        management.registerListener(this, theSensor, SensorManager.SENSOR_DELAY_NORMAL);
+        xText = (TextView)findViewById(R.id.xText);
+        yText = (TextView)findViewById(R.id.yText);
+        zText = (TextView)findViewById(R.id.zText);
+
+
         theAlarm = findViewById(R.id.timePicker);
         timeAsOfNow = findViewById(R.id.textClock);
         final Ringtone alarmRing = RingtoneManager.getRingtone(getApplicationContext(), RingtoneManager.getDefaultUri(RingtoneManager.TYPE_RINGTONE));
@@ -26,15 +46,42 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void run() {
 
-                if (timeAsOfNow.getText().toString().equals(TheAlarm())) {
-                    alarmRing.play();
-                } else {
-                    alarmRing.stop();
+                if (alarmYeet) {
+                    if (timeAsOfNow.getText().toString().equals(TheAlarm())) {
+                        alarmRing.play();
+                        isRinging = true;
+                    }
+                    if (isRinging && counter == 5) {
+                        alarmRing.stop();
+                        counter = 0;
+                        isRinging = false;
+                        alarmYeet = false;
+                    }
                 }
-
+                if (!(timeAsOfNow.getText().toString().equals(TheAlarm()))) {
+                    alarmYeet = true;
+                }
             }
         }, 0, 1000);
     }
+
+    @Override
+    public void onSensorChanged(SensorEvent event) {
+        xText.setText("X; " + event.values[0]);
+        yText.setText("Y; " + event.values[1]);
+        zText.setText("Z; " + event.values[2]);
+        if (isRinging) {
+            if (event.values[1] > 9) {
+                counter++;
+            }
+        }
+    }
+
+    @Override
+    public void onAccuracyChanged(Sensor sensor, int accuracy) {
+        //Do not interfere with that which you do not understand.
+    }
+
     public String TheAlarm() {
         Integer laHoraDeAlarma = theAlarm.getCurrentHour();
         Integer losMinutos= theAlarm.getCurrentMinute();
