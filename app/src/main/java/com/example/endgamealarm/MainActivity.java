@@ -19,9 +19,11 @@ import android.widget.TextView;
 public class MainActivity extends AppCompatActivity implements SensorEventListener{
     TimePicker theAlarm;
     TextClock timeAsOfNow;
+    // alarm has been turned off.
     private boolean alarmYeet = true;
+    // alarm status.
     private boolean isRinging;
-    private TextView xText, yText, zText;
+    // sensor variables.
     private Sensor theSensor;
     private SensorManager management;
     private int counter = 0;
@@ -33,14 +35,11 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         management = (SensorManager)getSystemService(SENSOR_SERVICE);
         theSensor = management.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
         management.registerListener(this, theSensor, SensorManager.SENSOR_DELAY_NORMAL);
-        xText = (TextView)findViewById(R.id.xText);
-        yText = (TextView)findViewById(R.id.yText);
-        zText = (TextView)findViewById(R.id.zText);
-
-
+        // the Alarm.
         theAlarm = findViewById(R.id.timePicker);
         timeAsOfNow = findViewById(R.id.textClock);
-        final Ringtone alarmRing = RingtoneManager.getRingtone(getApplicationContext(), RingtoneManager.getDefaultUri(RingtoneManager.TYPE_RINGTONE));
+        final Ringtone alarmRing = RingtoneManager.getRingtone(getApplicationContext(),
+                RingtoneManager.getDefaultUri(RingtoneManager.TYPE_RINGTONE));
         Timer settingTime = new Timer();
         settingTime.scheduleAtFixedRate(new TimerTask() {
             @Override
@@ -51,7 +50,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                         alarmRing.play();
                         isRinging = true;
                     }
-                    if (isRinging && counter == 5) {
+                    if (isRinging && counter == 25) {
                         alarmRing.stop();
                         counter = 0;
                         isRinging = false;
@@ -65,11 +64,9 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         }, 0, 1000);
     }
 
+    // accelerometer detection
     @Override
     public void onSensorChanged(SensorEvent event) {
-        xText.setText("X; " + event.values[0]);
-        yText.setText("Y; " + event.values[1]);
-        zText.setText("Z; " + event.values[2]);
         if (isRinging) {
             if (event.values[1] > 9) {
                 counter++;
@@ -79,7 +76,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
     @Override
     public void onAccuracyChanged(Sensor sensor, int accuracy) {
-        //Do not interfere with that which you do not understand.
+        //Do not interfere with that which you do not understand. Mainly because there will be an error.
     }
 
     public String TheAlarm() {
@@ -87,17 +84,21 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         Integer losMinutos= theAlarm.getCurrentMinute();
         String theAlarmAsString;
         String theAlarmMinutesString;
-        if (losMinutos < 10) {
+        if (losMinutos >= 10) {
+            theAlarmMinutesString = losMinutos.toString();
+        } else {
             theAlarmAsString = "0";
             theAlarmMinutesString = theAlarmAsString.concat(losMinutos.toString());
-        } else {
-            theAlarmMinutesString = losMinutos.toString();
         }
-        if(laHoraDeAlarma > 12) {
-            laHoraDeAlarma = laHoraDeAlarma - 12;
-            theAlarmAsString = laHoraDeAlarma.toString().concat(":").concat(theAlarmMinutesString).concat(" PM");
+        // In this step, we concat the Alarm String so we can compare to the actual time.
+        if (laHoraDeAlarma <= 12) {
+            theAlarmAsString = laHoraDeAlarma.toString().concat(":")
+                    .concat(theAlarmMinutesString).concat(" AM");
         } else {
-            theAlarmAsString = laHoraDeAlarma.toString().concat(":").concat(theAlarmMinutesString).concat(" AM");
+            // here we make it so that it checks fo the PM times.
+            laHoraDeAlarma = laHoraDeAlarma - 12;
+            theAlarmAsString = laHoraDeAlarma.toString().concat(":")
+                    .concat(theAlarmMinutesString).concat(" PM");
         }
         return theAlarmAsString;
     }
