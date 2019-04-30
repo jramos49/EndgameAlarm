@@ -50,7 +50,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                         alarmRing.play();
                         isRinging = true;
                     }
-                    if (isRinging && counter == 25) {
+                    if (isRinging && counter == 10) {
                         alarmRing.stop();
                         counter = 0;
                         isRinging = false;
@@ -81,24 +81,24 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
     public String TheAlarm() {
         Integer laHoraDeAlarma = theAlarm.getCurrentHour();
-        Integer losMinutos= theAlarm.getCurrentMinute();
+        Integer losMinutos = theAlarm.getCurrentMinute();
         String theAlarmAsString;
         String theAlarmMinutesString;
-        if (losMinutos >= 10) {
-            theAlarmMinutesString = losMinutos.toString();
-        } else {
+        if (losMinutos < 10) {
             theAlarmAsString = "0";
             theAlarmMinutesString = theAlarmAsString.concat(losMinutos.toString());
-        }
-        // In this step, we concat the Alarm String so we can compare to the actual time.
-        if (laHoraDeAlarma <= 12) {
-            theAlarmAsString = laHoraDeAlarma.toString().concat(":")
-                    .concat(theAlarmMinutesString).concat(" AM");
         } else {
-            // here we make it so that it checks fo the PM times.
+            theAlarmMinutesString = losMinutos.toString();
+        }
+        // here we concat the Alarm Time so we can compare it to the current time.
+        if (laHoraDeAlarma > 12) {
             laHoraDeAlarma = laHoraDeAlarma - 12;
             theAlarmAsString = laHoraDeAlarma.toString().concat(":")
                     .concat(theAlarmMinutesString).concat(" PM");
+        } else {
+            // here we check for the Alarm Times in the morning!
+            theAlarmAsString = laHoraDeAlarma.toString().concat(":")
+                    .concat(theAlarmMinutesString).concat(" AM");
         }
         return theAlarmAsString;
     }
