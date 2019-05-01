@@ -23,6 +23,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     private boolean alarmYeet = true;
     // alarm status.
     private boolean isRinging;
+    private TextView xText, yText, zText;
     // sensor variables.
     private Sensor theSensor;
     private SensorManager management;
@@ -35,22 +36,23 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         management = (SensorManager)getSystemService(SENSOR_SERVICE);
         theSensor = management.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
         management.registerListener(this, theSensor, SensorManager.SENSOR_DELAY_NORMAL);
+        xText = (TextView)findViewById(R.id.xText);
+        yText = (TextView)findViewById(R.id.yText);
+        zText = (TextView)findViewById(R.id.zText);
         // the Alarm.
         theAlarm = findViewById(R.id.timePicker);
         timeAsOfNow = findViewById(R.id.textClock);
-        final Ringtone alarmRing = RingtoneManager.getRingtone(getApplicationContext(),
-                RingtoneManager.getDefaultUri(RingtoneManager.TYPE_RINGTONE));
+        final Ringtone alarmRing = RingtoneManager.getRingtone(getApplicationContext(), RingtoneManager.getDefaultUri(RingtoneManager.TYPE_RINGTONE));
         Timer settingTime = new Timer();
         settingTime.scheduleAtFixedRate(new TimerTask() {
             @Override
             public void run() {
-
                 if (alarmYeet) {
                     if (timeAsOfNow.getText().toString().equals(TheAlarm())) {
                         alarmRing.play();
                         isRinging = true;
                     }
-                    if (isRinging && counter == 10) {
+                    if (isRinging && counter >= 25) {
                         alarmRing.stop();
                         counter = 0;
                         isRinging = false;
@@ -67,8 +69,11 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     // accelerometer detection
     @Override
     public void onSensorChanged(SensorEvent event) {
+        xText.setText("X; " + event.values[0]);
+        yText.setText("Y; " + event.values[1]);
+        zText.setText("Z; " + event.values[2]);
         if (isRinging) {
-            if (event.values[1] > 9) {
+            if (event.values[1] > 9 || event.values[1] < 9) {
                 counter++;
             }
         }
@@ -90,15 +95,11 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         } else {
             theAlarmMinutesString = losMinutos.toString();
         }
-        // here we concat the Alarm Time so we can compare it to the current time.
         if (laHoraDeAlarma > 12) {
             laHoraDeAlarma = laHoraDeAlarma - 12;
-            theAlarmAsString = laHoraDeAlarma.toString().concat(":")
-                    .concat(theAlarmMinutesString).concat(" PM");
+            theAlarmAsString = laHoraDeAlarma.toString().concat(":").concat(theAlarmMinutesString).concat(" PM");
         } else {
-            // here we check for the Alarm Times in the morning!
-            theAlarmAsString = laHoraDeAlarma.toString().concat(":")
-                    .concat(theAlarmMinutesString).concat(" AM");
+            theAlarmAsString = laHoraDeAlarma.toString().concat(":").concat(theAlarmMinutesString).concat(" AM");
         }
         return theAlarmAsString;
     }
